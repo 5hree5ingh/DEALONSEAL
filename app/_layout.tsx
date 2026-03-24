@@ -15,6 +15,9 @@ export default function RootLayout() {
         <Stack.Screen name="login" />
         <Stack.Screen name="otp" />
         <Stack.Screen name="device-selection" />
+        <Stack.Screen name="mobile-form" />
+        <Stack.Screen name="photo-upload" />
+        <Stack.Screen name="mobile-details" />
         <Stack.Screen name="(tabs)" />
       </Stack>
       <StatusBar style="auto" />

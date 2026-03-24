@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
-type DeviceType = 'mobile' | 'laptop' | 'tablet';
+type DeviceType = 'mobile' | 'laptop' | 'tablet' | 'others';
 
 interface DeviceCardProps {
     icon: string;
@@ -26,12 +26,11 @@ interface DeviceCardProps {
 
 const DeviceCard: React.FC<DeviceCardProps> = ({ icon, title, description, type, onPress }) => {
     const scaleValue = React.useRef(new Animated.Value(1)).current;
-    const [selected, setSelected] = React.useState(false);
 
     const handlePressIn = () => {
         Animated.timing(scaleValue, {
-            toValue: 1.03,
-            duration: 180,
+            toValue: 0.98,
+            duration: 100,
             useNativeDriver: true,
         }).start();
     };
@@ -39,17 +38,14 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ icon, title, description, type,
     const handlePressOut = () => {
         Animated.spring(scaleValue, {
             toValue: 1,
-            friction: 3,
+            friction: 7,
             tension: 40,
             useNativeDriver: true,
         }).start();
     };
 
     const handlePress = () => {
-        setSelected(true);
-        setTimeout(() => {
-            onPress(type);
-        }, 300);
+        onPress(type);
     };
 
     return (
@@ -62,29 +58,27 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ icon, title, description, type,
             <Animated.View
                 style={[
                     styles.card,
-                    selected && styles.cardSelected,
                     {
                         transform: [{ scale: scaleValue }],
                     },
                 ]}
             >
-                <BlurView intensity={20} tint="dark" style={styles.cardBlur}>
-                    <View style={styles.cardContent}>
-                        <View style={styles.iconContainer}>
-                            <Text style={styles.icon}>{icon}</Text>
-                        </View>
-                        <View style={styles.cardTextContainer}>
-                            <Text style={styles.cardTitle}>{title}</Text>
-                            <Text style={styles.cardDescription}>{description}</Text>
-                        </View>
-                        {selected && (
-                            <View style={styles.selectedDot}>
-                                <View style={styles.selectedDotInner} />
+                <BlurView intensity={25} tint="dark" style={styles.cardBlur}>
+                    <LinearGradient
+                        colors={['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.04)']}
+                        style={styles.cardGradient}
+                    >
+                        <View style={styles.cardContent}>
+                            <View style={styles.iconContainer}>
+                                <Text style={styles.icon}>{icon}</Text>
                             </View>
-                        )}
-                    </View>
+                            <View style={styles.cardTextContainer}>
+                                <Text style={styles.cardTitle}>{title}</Text>
+                                <Text style={styles.cardDescription}>{description}</Text>
+                            </View>
+                        </View>
+                    </LinearGradient>
                 </BlurView>
-                {selected && <View style={styles.selectedRing} />}
             </Animated.View>
         </TouchableOpacity>
     );
@@ -94,8 +88,12 @@ export default function DeviceSelectionScreen() {
     const router = useRouter();
 
     const handleDeviceSelect = (type: DeviceType) => {
-        // Navigate to certificate generator or next screen
-        router.replace('/(tabs)');
+        // Navigate to device-specific form or next screen
+        if (type === 'mobile') {
+            router.push('/mobile-form');
+        } else {
+            router.push('/(tabs)');
+        }
     };
 
     return (
@@ -139,6 +137,13 @@ export default function DeviceSelectionScreen() {
                         title="Tablet"
                         description="iPads & Android Tablets"
                         type="tablet"
+                        onPress={handleDeviceSelect}
+                    />
+                    <DeviceCard
+                        icon="📦"
+                        title="Others"
+                        description="Other Devices & Accessories"
+                        type="others"
                         onPress={handleDeviceSelect}
                     />
                 </View>
@@ -197,82 +202,111 @@ const styles = StyleSheet.create({
     cardsContainer: {
         flex: 1,
         justifyContent: 'center',
-        gap: 16,
+        gap: 20,
     },
     card: {
-        height: 110,
-        borderRadius: 18,
+        height: 120,
+        borderRadius: 20,
         overflow: 'hidden',
         position: 'relative',
     },
     cardSelected: {
         shadowColor: '#BFAAFF',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.4,
-        shadowRadius: 16,
-        elevation: 8,
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.6,
+        shadowRadius: 20,
+        elevation: 12,
     },
     cardBlur: {
         flex: 1,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.06)',
-        borderRadius: 18,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderRadius: 20,
+    },
+    cardGradient: {
+        flex: 1,
+        borderRadius: 20,
     },
     cardContent: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(237, 233, 255, 0.06)',
-        paddingHorizontal: 20,
+        paddingHorizontal: 24,
+        paddingVertical: 20,
     },
     iconContainer: {
-        width: 64,
-        height: 64,
-        borderRadius: 16,
+        width: 72,
+        height: 72,
+        borderRadius: 18,
         backgroundColor: 'rgba(191, 170, 255, 0.15)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 16,
+        marginRight: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(191, 170, 255, 0.2)',
+    },
+    iconContainerSelected: {
+        backgroundColor: 'rgba(191, 170, 255, 0.25)',
+        borderColor: 'rgba(191, 170, 255, 0.4)',
+        shadowColor: '#BFAAFF',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.5,
+        shadowRadius: 12,
+        elevation: 6,
     },
     icon: {
-        fontSize: 32,
+        fontSize: 36,
     },
     cardTextContainer: {
         flex: 1,
     },
     cardTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: '700',
         color: '#FFFFFF',
-        marginBottom: 4,
+        marginBottom: 6,
+        letterSpacing: -0.3,
     },
     cardDescription: {
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: '400',
-        color: '#CFC7E8',
+        color: 'rgba(207, 199, 232, 0.8)',
+        lineHeight: 20,
     },
-    selectedDot: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        backgroundColor: '#7EE07A',
+    selectedIndicator: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#BFAAFF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 12,
+    },
+    selectedCheck: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: '#FFFFFF',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    selectedDotInner: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: '#FFFFFF',
+    checkIcon: {
+        fontSize: 12,
+        fontWeight: '800',
+        color: '#BFAAFF',
     },
     selectedRing: {
         position: 'absolute',
-        top: -2,
-        left: -2,
-        right: -2,
-        bottom: -2,
-        borderRadius: 20,
-        borderWidth: 2,
+        top: -3,
+        left: -3,
+        right: -3,
+        bottom: -3,
+        borderRadius: 23,
+        borderWidth: 2.5,
         borderColor: '#BFAAFF',
+        shadowColor: '#BFAAFF',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.8,
+        shadowRadius: 12,
     },
 });

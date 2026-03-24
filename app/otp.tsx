@@ -160,17 +160,20 @@ export default function OTPScreen() {
                     ]}
                 >
                     {otp.map((digit, index) => (
-                        <View key={index} style={styles.otpInputWrapper}>
+                        <View
+                            key={index}
+                            style={[
+                                styles.otpInputWrapper,
+                                digit && styles.otpInputWrapperFilled,
+                                error && styles.otpInputWrapperError,
+                            ]}
+                        >
                             <BlurView intensity={20} tint="dark" style={styles.otpBlur}>
                                 <TextInput
                                     ref={(ref) => {
                                         inputRefs.current[index] = ref;
                                     }}
-                                    style={[
-                                        styles.otpInput,
-                                        digit && styles.otpInputFilled,
-                                        error && styles.otpInputError,
-                                    ]}
+                                    style={styles.otpInput}
                                     value={digit}
                                     onChangeText={(value) => handleOtpChange(value, index)}
                                     onKeyPress={(e) => handleKeyPress(e, index)}
@@ -265,31 +268,45 @@ const styles = StyleSheet.create({
         marginBottom: 32,
     },
     otpInputWrapper: {
-        position: 'relative',
-    },
-    otpBlur: {
         width: (width - 80) / 6,
         height: 56,
         borderRadius: 12,
-        overflow: 'hidden',
-        borderWidth: 1,
+        borderWidth: 1.5,
         borderColor: 'rgba(255, 255, 255, 0.06)',
+        overflow: 'hidden',
+    },
+    otpInputWrapperFilled: {
+        borderColor: '#BFAAFF',
+        borderWidth: 2,
+        shadowColor: '#BFAAFF',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.7,
+        shadowRadius: 10,
+        elevation: 6,
+    },
+    otpInputWrapperError: {
+        borderColor: '#FF6B6B',
+        borderWidth: 2,
+        shadowColor: '#FF6B6B',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.7,
+        shadowRadius: 10,
+        elevation: 6,
+    },
+    otpBlur: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 12,
+        overflow: 'hidden',
+        backgroundColor: 'rgba(191, 170, 255, 0.2)',
     },
     otpInput: {
         flex: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.04)',
+        backgroundColor: 'transparent',
         fontSize: 24,
         fontWeight: '700',
         textAlign: 'center',
         color: '#FFFFFF',
-    },
-    otpInputFilled: {
-        borderColor: '#BFAAFF',
-        borderWidth: 2,
-    },
-    otpInputError: {
-        borderColor: '#FF6B6B',
-        borderWidth: 2,
     },
     ctaButton: {
         marginBottom: 24,
